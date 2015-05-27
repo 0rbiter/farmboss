@@ -1,0 +1,65 @@
+slotnr = 1
+turtle.select(1)
+OldSlot = 1
+
+
+function mount(slot)
+  OldSlot = turtle.getSelectedSlot()
+  if not (OldSlot == slot) then
+    turtle.select(slot)
+    slotnr = slot
+  end
+end
+
+function umount(slot)
+  turtle.select(OldSlot)
+  slotnr = OldSlot
+end
+
+function selectedSlot()
+  return turtle.getSelectedSlot()
+end
+
+function ItemCount(x)
+  return turtle.getItemCount(x)
+end
+
+function useItemSlot(from, to)
+  local state = 0
+  for i = from, to do
+    if ItemCount(i) > 0 then
+      mount(i)
+      return true
+    elseif i <= 16 and ItemCount(i+1) > 0 then
+      mount(i+1)
+      return true
+    elseif i <= 16 and ItemCount(i+1) < 0 then
+      i = i + 1
+    end
+  end
+  
+  return 0  
+end
+
+
+function checkInventory(mode, width, height)
+  if not mode or not width or not height then
+    print("Wrong parameters!")
+    return false
+  elseif mode == "dirt" then
+    print(mode.." "..width.."x"..height)
+    for i = 1, 4 do
+      if not ((turtle.getItemCount(i) + turtle.getItemCount(i+4)) == (width*height)-1) then
+        print("Fill 1-4 with 4x64 dirt and fill 5-8 with 16 dirt each")
+        return false
+      end
+    end
+    return true
+  elseif mode == "farm" then
+    os.loadAPI("/farmboss/farmapi")        
+  else
+    print("What mode? "..mode.." wtf? ")
+    return false
+  end
+end
+

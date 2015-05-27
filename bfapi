@@ -1,0 +1,324 @@
+--os.unloadAPI("/farmboss/basics")
+os.loadAPI("/farmboss/basics")
+os.loadAPI("/farmboss/slots")
+
+args = { ... }
+arg = { }
+
+if args[1] then 
+  arg = basics.explode(args[1])
+end
+
+mode = arg[1]
+width = arg[2]
+height = arg[3]
+
+function init(m, w, h)
+  assert(m and w and h, "Wrong parameters!")
+  mode = m
+  width = w
+  height = h
+end
+
+function destroy(destruct)
+  bfapi.dig(destruct)
+  return turtle.digDown()
+end
+
+function destroyUp(destruct)
+  local state
+  if destruct then
+    state = turtle.digUp()
+  end
+  return state
+end
+
+function destroyDown(destruct)
+  local state
+  if destruct then
+    state = turtle.digDown()
+  end
+  return state
+end
+
+function dig(destruct)
+  local state
+  if destruct then
+    state = turtle.dig()
+  end
+  return state
+end
+
+function plant()
+  return turtle.placeDown()
+end
+
+function plantUp()
+  return turtle.placeUp()
+end
+
+function put()
+  turtle.place()
+end
+
+function up(x, destruct)
+  local state
+  if type(x) == nil then
+    turtle.up()
+  else
+    for i = 1, x do
+      bfapi.destroyUp(destruct)
+      state = turtle.up()
+    end
+  end
+  return state
+end
+
+function down(x, destruct)
+  local state
+  if (not x) then
+    turtle.down()
+  else
+    for i = 1, x do
+      bfapi.destroyDown(destruct)
+      state = turtle.down()
+    end
+  end
+  return state
+end
+
+
+
+function forward(x, destruct, destructUp, destructDown)
+  if (not x) then
+    turtle.forward()
+  else
+    for i = 1, x do
+      bfapi.dig(destruct)
+      bfapi.destroyUp(destructUp)
+      bfapi.destroyDown(destructDown)
+      turtle.forward()
+    end
+  end
+end
+
+function back(x)
+  if not x then turtle.back()
+  else
+    for i = 1, x do
+      turtle.back()
+    end
+  end
+end
+
+function turnLeft(x)
+  local state
+  if not x then
+    state = turtle.turnLeft()
+  else
+    for i = 1, x do
+      state = turtle.turnLeft()
+    end
+  end
+  return state
+end
+
+function turnRight(x)
+  local state
+  if not x then
+    state = turtle.turnRight()
+  else
+    for i = 1, x do
+      state = turtle.turnRight()
+    end
+  end
+  return state
+end
+
+
+
+function goHome(width, height, destruct, destructUp)
+  print("Waiting ->")
+  sleep(3)
+  bfapi.forward(height, destruct, destructUp)
+  bfapi.turnRight()
+  print(width.." "..height)
+  sleep(3)
+  bfapi.forward(tonumber(width), destruct, destructUp)
+  bfapi.turnRight()
+  bfapi.down(1)
+end
+
+
+
+function changeLine(linenr, destruct)
+  if ((linenr % 2) > 0) then
+    turnRight()
+    bfapi.dig(destruct)
+    forward()
+    turnRight()  
+  elseif ((linenr % 2) == 0) then
+    turnLeft()
+    bfapi.dig(destruct)
+    forward()
+    turnLeft()
+  else
+    print("fatal error")
+  end
+end
+
+function torchBehind(slot)
+  bfapi.turnLeft(2)
+  slots.mount(slot)
+  bfi.put()
+  slots.umount()
+  bfapi.turnRight(2)
+end
+
+function torchDown(slot)
+  slots.mount(slot)
+  bfapi.plant()
+  slots.umount()
+end
+
+function clearSpace(modus, destructive, x, y)
+  --init, destructive flag is for floor!
+  if x  == nil then print("no number given") end
+  if y == nil then y = x print("wtf?") end
+  print(x," / ",y)
+  
+  bfapi.up(2, true)
+  bfapi.turnLeft()
+  bfapi.forward(1, true)
+  bfapi.turnRight()
+  x = x
+  y = y
+  if modus == "rectangle" then
+    for c = 1, 4 do
+      if (c % 2) > 0 then
+	for dy = 1, y do
+          if not (dy == y) then bfapi.forward(1, true, true, destructive)
+          else bfapi.turnRight() end
+        end
+      elseif c % 2 == 0 then
+	for dx = 1, x do
+	  --kill for-loop when startingpoint is reached
+	  if c == 4 and dx == x-1 then break end 
+          
+          if not (dx == x) then
+            bfapi.forward(1, true, true, destructive)
+	  else
+	    bfapi.turnRight()
+	  end
+        end
+      end
+    end
+    bfapi.turnRight()
+  end
+end
+
+function putSideTorches(TorchSlot)
+  local x = 11
+  local y = x
+  
+  slots.mount(TorchSlot)
+  
+  bfapi.up(2, true)
+  bfapi.turnLeft()
+  bfapi.forward(1, true)
+  bfapi.turnRight()
+  
+  for c = 1, 4 do
+      if (c % 2) > 0 then
+	for dy = 1, y do
+	  if dy == 1 or dy == 6 then
+	    torchDown(15)
+	  end
+          if not (dy == y) then bfapi.forward(1, true)
+          else
+            bfapi.turnRight()
+          end
+        end
+      elseif c % 2 == 0 then
+	for dx = 1, x do
+	  if dx == 1 or dx == 6 then
+	    torchDown(15)
+	  end
+	
+	  --kill for-loop when startingpoint is reached
+	  if c == 4 and dx == x-1 then break end 
+          
+          if not (dx == x) then
+            bfapi.forward(1, true)
+	  else
+	    bfapi.turnRight()
+	  end
+        end
+      end
+    end
+    bfapi.turnRight()
+    bfapi.down(2)
+  slots.umount()
+end
+
+function putTorches(TorchSlot)
+  OldSlot = turtle.getSelectedSlot()
+  
+  bfapi.back()
+  bfapi.back()
+  bfapi.up(2, true)
+  slots.mount(TorchSlot)
+	    
+  for k = 1, 4 do
+    bfapi.forward(1, true)
+    bfapi.turnRight()
+    bfapi.dig(true)
+    bfapi.turnLeft()
+    bfapi.back()
+    bfapi.put()
+    bfapi.turnRight()
+    bfapi.forward(2, true)
+    bfapi.turnLeft()
+    bfapi.forward(2, true)
+    bfapi.turnLeft()
+  end
+  
+  bfapi.down()
+  bfapi.forward(1, true)
+  bfapi.forward(1, true)
+  bfapi.down()
+  slots.umount()
+end
+
+function start(mode, width, height)
+  if not mode or not width or not height then
+    print("Wrong parameters!")
+    return false
+  end
+  
+  if mode == "dirt" then
+    bfapi.init(mode, width, height)
+    bfapi.up(1, true)
+    bfapi.forward(1, true)
+    slots.mount(2)
+    for w = 1, width do
+      for h = 1, height do
+        print("Schritt "..w.."/"..h)
+        
+        bfapi.destroy()
+        slots.useItemSlot(2, 6)
+        bfapi.plant()
+       
+        
+        if h == height then
+          changeLine(w)
+        else
+        print("else...")
+          forward()
+        end
+      end
+    end
+    slots.umount()
+  bfapi.goHome()
+  end
+end

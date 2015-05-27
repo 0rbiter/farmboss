@@ -1,0 +1,10 @@
+function explode(faden)
+  retable = { }
+  z = 1
+  for i in string.gmatch(faden,"%S+") do
+    retable[z] = i
+    z = z + 1
+  end
+  return retable
+end
+

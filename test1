@@ -1,0 +1,10 @@
+os.loadAPI("/farmboss/basics")
+os.loadAPI("/farmboss/testapi")
+args = { ... }
+faden = ""
+for i = 1, #args do
+  faden = faden.." "..args[i]
+end
+print(faden)
+
+testapi.test()

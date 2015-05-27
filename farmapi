@@ -1,0 +1,67 @@
+os.unloadAPI("/farmboss/bfapi")
+os.unloadAPI("/farmboss/basics")
+
+os.loadAPI("/farmboss/basics")
+args = { ... }
+
+--args = basics.explode(args[1])
+
+os.loadAPI("/farmboss/bfapi")
+
+if args[3] then
+  mode = args[1]
+  width = tonumber(args[2])
+  height = tonumber(args[3])
+  bfapi.init(mode, width, height)
+else
+  print("Wrong arguments!")
+  print("I need: modus width height")
+  return false
+end
+
+
+print(mode.." "..width.." "..height)
+
+function plant()
+  bfapi.selectSlot(13)
+  turtle.placeDown()
+  bfapi.selectSlot(2)
+  turtle.placeDown()
+end
+
+function start(mode, width, height)
+  if not mode or not width or not height then
+    print("Wrong parameters!")
+    return false
+  end
+  
+  if mode == "farm" then
+  while true do
+    bfapi.up()
+    bfapi.up()
+    bfapi.forward()
+    bfapi.selectSlot(2)
+    for w = 1, width do
+      for h = 1, height do
+        print("Schritt "..w.."/"..h)
+        --assert(selectSlot(getSlotNr()),"Error")
+        
+        bfapi.destroy()
+        plant()
+       
+        
+        if h == height then
+          bfapi.changeLine(w)
+        else
+          print("else...")
+          bfapi.forward()
+        end
+      end
+    end
+  bfapi.goHome(width, height)
+  sleep(3600)
+  end
+  end
+end
+
+start(mode, width, height)

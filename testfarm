@@ -1,0 +1,5 @@
+--os.loadAPI("/farmboss/bfapi")
+--os.loadAPI("/farmboss/split")
+--table1 = { "farm", 9, 9 }
+
+shell.run("/farmboss/farmer", "farm 9 9")

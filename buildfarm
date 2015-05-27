@@ -1,0 +1,101 @@
+for i = 1, 4 do
+  if not ((turtle.getItemCount(i) + turtle.getItemCount(i+4)) == 80) then
+    print("Fill 1-4 with 4x64 dirt and fill 5-8 with 16 dirt each")
+    break
+  end
+end
+function selectedSlot()
+  return turtle.getSelectedSlot()
+end
+
+function ItemCount(x)
+  return turtle.getItemCount(x)
+end
+
+function selectSlot(x)
+  return turtle.select(x)
+end
+
+function getSlotNr()
+  selectSlot(1)
+  for i = 1, 4 do
+    if ItemCount(selectedSlot()) > 0 then
+      return i
+    elseif ItemCount(selectedSlot()+4) > 0 then
+      return i+4
+    else
+      return 0
+    end
+  end
+  return 0  
+end
+
+args = { ... }
+if not args[1] or not args[2] then
+  print("Give width and height as parameters")
+  print("forward = height, right = width")
+end
+
+local width = args[1]
+local height = args[2]
+
+function up()
+  return turtle.up()
+end
+
+function destroy()
+  return turtle.digDown()
+end
+
+function plant()
+  return turtle.placeDown()
+end
+
+function forward(x)
+  if not x then turtle.forward()
+  else
+    for i = 1, x do
+      turtle.forward()
+    end
+  end
+end
+
+function turnLeft(x)
+  return turtle.turnLeft(x)
+end
+
+function turnRight(x)
+  return turtle.turnRight()
+end
+
+function changeLine(linenr)
+  if ((linenr % 2) > 0) then
+    turnRight()
+    forward()
+    turnRight()  
+  elseif ((linenr % 2) == 0) then
+    turnLeft()
+    forward()
+    turnLeft()
+  else
+    print("fatal error")
+  end
+end
+
+
+up()
+selectSlot(1)
+for w = 1, width do
+  for h = 1, height-1 do
+    if w == 1 and h == 1 then
+      h = h + 1
+    end
+    selectSlot(getSlotNr())
+    forward()
+    destroy()
+    plant()
+  end
+  changeLine(w)
+  destroy()
+  plant()
+end
